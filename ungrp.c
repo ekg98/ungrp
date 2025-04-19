@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 			{
 				// get filenames and enter them into the structure.  NULL terminate the string
 				fread(fileList[intCounter].fileName, sizeof(fileList[intCounter].fileName[0]), 12, fileToExtract);
-				fileList[intCounter].fileName[13] = '\0';
+				fileList[intCounter].fileName[12] = '\0';
 
 				// get filesize and enter them into the structure
 				fread(&fileList[intCounter].fileSize, sizeof(fileList[intCounter].fileSize), 1, fileToExtract);
