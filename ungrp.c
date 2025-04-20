@@ -1,17 +1,18 @@
-// ungrp.c - Ungrp
+// ungrp.c - ungrp
 //
-// A simple program to open Ken Silvermans .grp files and extract the files.
-// Thanks to Ken for a wonderful engine and inspration to stay in C programming.
+// A simple program to open Ken Silverman's .grp files and extract the files.
+// Thanks to Ken for a wonderful engine and inspiration to stay in C programming.
 //
 // By William English
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "grp.h"
 
 int main(int argc, char *argv[])
 {
-	// check to see if you have entered in a filename to the program
+	// check to see if you have entered a filename to the program
 	if(argc < 2)
 	{
 		printf("You must enter a file name to extract.\n");
@@ -21,8 +22,7 @@ int main(int argc, char *argv[])
 	// program loop to open file and do work
 	for(int intFileCounter = 1; intFileCounter < argc; intFileCounter++)
 	{
-		FILE *fileToExtract;
-		fileToExtract = fopen(argv[intFileCounter], "rb");
+		FILE *fileToExtract = fopen(argv[intFileCounter], "rb");
 		
 		// opening error check
 		if(fileToExtract == NULL)
@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 			printf("Extracting...\n");
 
 			struct grpFileStructure fileList[NumberOfFilesInGrp];
-			long firstOffset;
+
+			// assign the first offset to the first element of the array of file data
 			fileList[0].offset = ((NumberOfFilesInGrp + 1) * 16);
 
 			// populate grpFileStructure
@@ -78,8 +79,7 @@ int main(int argc, char *argv[])
 
 				fseek(fileToExtract, fileList[intCounter].offset,SEEK_SET);
 				
-				FILE *extractedFile;
-				extractedFile = fopen(fileList[intCounter].fileName, "wb");
+				FILE *extractedFile = fopen(fileList[intCounter].fileName, "wb");
 
 				uint8_t buffer;
 				for(long byteCounter = 0; byteCounter < fileList[intCounter].fileSize; byteCounter++)

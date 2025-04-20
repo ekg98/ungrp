@@ -4,8 +4,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#define MAXFILES	4096
 
-// isKenSilvermanHeader(): *kenSilverman is a pointer to a 12 byte ASCII array.  Function determines if array contains the header for Ken Silvermans .grp files.
+// isKenSilvermanHeader(): *kenSilverman is a pointer to a 12 byte ASCII array.  Function determines if array contains the header for Ken Silverman's .grp files.
 bool isKenSilvermanHeader(char *kenSilverman);
 
 // grpFileStructure:  Structure containing information about the file located inside a .grp file.
