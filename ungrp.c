@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	if(argc < 2)
 	{
 		printf("You must enter a file name to extract.\n");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 
 	// program loop to open file and do work
@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
 		// opening error check
 		if(fileToExtract == NULL)
 		{
-			printf("Could not open file: %s\n", argv[intFileCounter]);
-			return EXIT_FAILURE;
+			fprintf(stderr, "Could not open file: %s\n", argv[intFileCounter]);
+			continue;
 		}
 
 		// do some work - extractor part here
@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
 		// determine if file has the magic KenSilverman header and extract files.	
 		if(isKenSilvermanHeader(kenSilverman))
 		{
-			printf(".grp file detected.\n");
+			printf("valid .grp file detected.\n");
 
 			fread(&NumberOfFilesInGrp, sizeof(NumberOfFilesInGrp), 1, fileToExtract);
 
-			printf("%d file(s) found.\n", NumberOfFilesInGrp);
+			printf("%d file(s) found in %s.\n", NumberOfFilesInGrp, argv[intFileCounter]);
 			printf("Extracting...\n");
 
 			struct grpFileStructure fileList[NumberOfFilesInGrp];
@@ -75,11 +75,18 @@ int main(int argc, char *argv[])
 			for(int intCounter = 0; intCounter < NumberOfFilesInGrp; intCounter++)
 			{	
 				// print the file name and bytes being extracted.
-				printf("%s %d bytes at offset %d\n", fileList[intCounter].fileName, fileList[intCounter].fileSize, fileList[intCounter].offset);
+				printf("%s %d bytes\n", fileList[intCounter].fileName, fileList[intCounter].fileSize);
 
 				fseek(fileToExtract, fileList[intCounter].offset,SEEK_SET);
 				
 				FILE *extractedFile = fopen(fileList[intCounter].fileName, "wb");
+
+				if (extractedFile == NULL)
+				{
+					fprintf(stderr, "Cannot create file %d\n", fileList[intCounter].fileName);
+					perror("Error");
+					exit(EXIT_FAILURE);
+				}
 
 				uint8_t buffer;
 				for(long byteCounter = 0; byteCounter < fileList[intCounter].fileSize; byteCounter++)
@@ -88,21 +95,25 @@ int main(int argc, char *argv[])
 					fwrite(&buffer, 1, 1, extractedFile);
 				};
 
-				fclose(extractedFile);
+				if (fclose(extractedFile) == EOF)
+				{
+					fprintf(stderr, "Error closing file %s exiting...\n", argv[intFileCounter]);
+					exit(EXIT_FAILURE);
+				}
 			};
 				
 
 		}
 		else
-			printf("%s is not a valid .grp file.  Skipping...\n", argv[intFileCounter]);
+			fprintf(stderr, "%s is not a valid .grp file.  Skipping...\n", argv[intFileCounter]);
 
 		// closing error check
 		if((fclose(fileToExtract) == EOF))
 		{
-			printf("Could not close file: %s\n", argv[intFileCounter]);
-			return EXIT_FAILURE;	
+			fprintf(stderr, "Could not close file: %s\n", argv[intFileCounter]);
+			exit(EXIT_FAILURE);
 		}
 	};
 
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 }
