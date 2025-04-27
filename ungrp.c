@@ -40,12 +40,12 @@ int main(int argc, char *argv[])
 		// determine if file has the magic KenSilverman header and extract files.	
 		if(isKenSilvermanHeader(kenSilverman))
 		{
-			printf("valid .grp file detected.\n");
+			printf("Valid .grp file detected\n");
 
 			fread(&NumberOfFilesInGrp, sizeof(NumberOfFilesInGrp), 1, fileToExtract);
 
-			printf("%d file(s) found in %s.\n", NumberOfFilesInGrp, argv[intFileCounter]);
-			printf("Extracting...\n");
+			printf("%d file(s) found in %s\n", NumberOfFilesInGrp, argv[intFileCounter]);
+			printf("Extracting...\n\n");
 
 			struct grpFileStructure fileList[NumberOfFilesInGrp];
 
@@ -74,13 +74,16 @@ int main(int argc, char *argv[])
 			// extract the files
 			for(int intCounter = 0; intCounter < NumberOfFilesInGrp; intCounter++)
 			{	
-				// print the file name and bytes being extracted.
-				printf("%s %d bytes\n", fileList[intCounter].fileName, fileList[intCounter].fileSize);
+				// print the file name and bytes being extracted. Max file size is like 4GB on FAT16 and FAT32.  This is a old format ya know.
+				printf("%-12s\t%16d bytes", fileList[intCounter].fileName, fileList[intCounter].fileSize);
 
+				// seek to the offset in the grp
 				fseek(fileToExtract, fileList[intCounter].offset,SEEK_SET);
 				
+				// open the blank file to copy data to
 				FILE *extractedFile = fopen(fileList[intCounter].fileName, "wb");
 
+				// error check if it opened correctly and print a error if it didn't
 				if (extractedFile == NULL)
 				{
 					fprintf(stderr, "Cannot create file %d\n", fileList[intCounter].fileName);
@@ -88,13 +91,24 @@ int main(int argc, char *argv[])
 					exit(EXIT_FAILURE);
 				}
 
+				// read a byte from source grp to destination file
 				uint8_t buffer;
+				size_t bytesWritten = 0;
+				size_t bytesRead = 0;
+
 				for(long byteCounter = 0; byteCounter < fileList[intCounter].fileSize; byteCounter++)
 				{
-					fread(&buffer, sizeof(buffer), 1, fileToExtract);
-					fwrite(&buffer, 1, 1, extractedFile);
+					bytesRead += fread(&buffer, sizeof(buffer), 1, fileToExtract);
+					bytesWritten += fwrite(&buffer, 1, 1, extractedFile);
 				};
 
+				// verification that files are written correctly
+				if ((bytesRead == bytesWritten) && (fileList[intCounter].fileSize == bytesWritten))
+					printf("\tSUCCESS!\n");
+				else
+					printf("\tFAILURE!\n");
+
+				// close the file that was being written
 				if (fclose(extractedFile) == EOF)
 				{
 					fprintf(stderr, "Error closing file %s exiting...\n", argv[intFileCounter]);
