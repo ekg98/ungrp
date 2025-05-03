@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "grp.h"
+#include "libgrp.h"
 
 int main(int argc, char *argv[])
 {
@@ -72,16 +72,16 @@ int main(int argc, char *argv[])
 			};
 			
 			// extract the files
-			for(int intCounter = 0; intCounter < NumberOfFilesInGrp; intCounter++)
-			{	
+			for (int intCounter = 0; intCounter < NumberOfFilesInGrp; intCounter++)
+			{
 				// print the file name and bytes being extracted. Max file size is like 4GB on FAT16 and FAT32.  This is a old format ya know.
 				printf("%-12s\t%16d bytes", fileList[intCounter].fileName, fileList[intCounter].fileSize);
 
 				// seek to the offset in the grp
-				fseek(fileToExtract, fileList[intCounter].offset,SEEK_SET);
-				
+				fseek(fileToExtract, fileList[intCounter].offset, SEEK_SET);
+
 				// open the blank file to copy data to
-				FILE *extractedFile = fopen(fileList[intCounter].fileName, "wb");
+				FILE* extractedFile = fopen(fileList[intCounter].fileName, "wb");
 
 				// error check if it opened correctly and print a error if it didn't
 				if (extractedFile == NULL)
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 				size_t bytesWritten = 0;
 				size_t bytesRead = 0;
 
-				for(long byteCounter = 0; byteCounter < fileList[intCounter].fileSize; byteCounter++)
+				for (long byteCounter = 0; byteCounter < fileList[intCounter].fileSize; byteCounter++)
 				{
 					bytesRead += fread(&buffer, sizeof(buffer), 1, fileToExtract);
 					bytesWritten += fwrite(&buffer, 1, 1, extractedFile);
